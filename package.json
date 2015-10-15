@@ -14,10 +14,9 @@
   },
   "homepage": "https://github.com/formidablelabs/victory-animation",
   "scripts": {
-    "prepublish": "npm run build-lib",
     "postinstall": "node -e \"require('fs').stat('lib', function(e,s){process.exit(e || !s.isDirectory() ? 1 : 0)})\" || npm run build-lib",
     "preversion": "npm run check",
-    "version": "npm run clean && npm run build && git add -A dist",
+    "version": "npm run clean && npm run build && git add -A dist lib",
     "clean-dist": "rimraf dist",
     "build-dist-min": "webpack --config webpack.config.js",
     "build-dist-dev": "webpack --config webpack.config.dev.js",
