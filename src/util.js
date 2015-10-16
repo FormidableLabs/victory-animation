@@ -21,7 +21,7 @@ import {interpolate} from "d3-interpolate";
  * @param {any} b - End value.
  * @returns {Function} Returns an interpolation function, if possible.
  */
-export const victoryInterpolate = function (a, b) {
+export const victoryInterpolator = function (a, b) {
   // If the values are strictly equal, or either value is null or undefined,
   // just use the start value `a` or end value `b` at every step, as there is
   // no reasonable in-between value. The value will jump, but we can try to

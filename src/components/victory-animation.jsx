@@ -2,7 +2,7 @@
 
 import React from "react";
 import {ease} from "d3-ease";
-import {victoryInterpolate} from "../util";
+import {victoryInterpolator} from "../util";
 
 class VictoryAnimation extends React.Component {
   constructor(props) {
@@ -30,7 +30,7 @@ class VictoryAnimation extends React.Component {
     /* If an object was supplied */
     if (Array.isArray(nextProps.data) === false) {
       /* compare cached version to next props */
-      this.interpolator = victoryInterpolate(this.state, nextProps.data);
+      this.interpolator = victoryInterpolator(this.state, nextProps.data);
       /* reset step to zero */
       this.step = 0;
       /* start request animation frame */
@@ -53,7 +53,7 @@ class VictoryAnimation extends React.Component {
       /* Get the next index */
       const data = this.queue[0];
       /* compare cached version to next props */
-      this.interpolator = victoryInterpolate(this.state, data);
+      this.interpolator = victoryInterpolator(this.state, data);
       /* reset step to zero */
       this.step = 0;
       setTimeout(() => {
