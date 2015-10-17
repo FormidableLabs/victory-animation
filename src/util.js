@@ -1,5 +1,7 @@
 import {interpolate} from "d3-interpolate";
+import {interpolators} from "d3-interpolate";
 
+let interpolatorAdded = false;
 /**
  * By default, `d3.interpolate` (which cycles through a list of interpolators)
  * has a few downsides:
@@ -47,6 +49,12 @@ export const victoryInterpolator = function (a, b) {
       };
     };
   }
-  return interpolate(a, b);
+};
+
+export const addVictoryInterpolator = function () {
+  if (!interpolatorAdded) {
+    interpolators.push(victoryInterpolator);
+    interpolatorAdded = true;
+  }
 };
 
