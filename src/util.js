@@ -1,7 +1,7 @@
-import d3 from "d3";
+import {interpolate} from "d3-interpolate";
+import {interpolators} from "d3-interpolate";
 
 let interpolatorAdded = false;
-
 /**
  * By default, `d3.interpolate` (which cycles through a list of interpolators)
  * has a few downsides:
@@ -45,7 +45,7 @@ export const victoryInterpolator = function (a, b) {
       return function () {
         const aval = (typeof a === "function") ? a.apply(this, arguments) : a;
         const bval = (typeof b === "function") ? b.apply(this, arguments) : b;
-        return d3.interpolate(aval, bval)(t);
+        return interpolate(aval, bval)(t);
       };
     };
   }
@@ -53,7 +53,8 @@ export const victoryInterpolator = function (a, b) {
 
 export const addVictoryInterpolator = function () {
   if (!interpolatorAdded) {
-    d3.interpolators.push(victoryInterpolator);
+    interpolators.push(victoryInterpolator);
     interpolatorAdded = true;
   }
 };
+
