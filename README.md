@@ -228,6 +228,9 @@ The following props are supported:
 
 *Default value:* `0.02`
 
+####**onEnd**
+
+*A Function.* This function gets called when the current animation is complete. If the animation is interrupted with new values, it fires after all values have been traversed.
 
 ## Development
 
@@ -237,5 +240,5 @@ Please see [DEVELOPMENT](DEVELOPMENT.md)
 
 Please see [CONTRIBUTING](CONTRIBUTING.md)
 
-[trav_img]: https://api.travis-ci.org/FormidableLabs/victory-pie.svg
-[trav_site]: https://travis-ci.org/FormidableLabs/victory-pie
+[trav_img]: https://api.travis-ci.org/FormidableLabs/victory-animation.svg
+[trav_site]: https://travis-ci.org/FormidableLabs/victory-animation

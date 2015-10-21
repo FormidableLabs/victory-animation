@@ -2,8 +2,33 @@
 
 import React from "react";
 import d3 from "d3";
+import { addVictoryInterpolator } from "../util";
 
-class VictoryAnimation extends React.Component {
+addVictoryInterpolator();
+
+export default class VictoryAnimation extends React.Component {
+  static propTypes = {
+    velocity: React.PropTypes.number,
+    easing: React.PropTypes.string,
+    delay: React.PropTypes.number,
+    onEnd: React.PropTypes.func,
+    data: React.PropTypes.oneOfType([
+      React.PropTypes.object,
+      React.PropTypes.array
+    ])
+  };
+
+  static defaultProps = {
+    /* velocity modifies step each frame */
+    velocity: 0.02,
+    /* easing modifies step each frame */
+    easing: "quad-in-out",
+    /* delay between transitions */
+    delay: 0,
+    /* we got nothin' */
+    data: {}
+  };
+
   constructor(props) {
     super(props);
     /* defaults */
@@ -58,6 +83,8 @@ class VictoryAnimation extends React.Component {
       setTimeout(() => {
         this.raf = this.functionToBeRunEachFrame();
       }, this.props.delay);
+    } else if (this.props.onEnd) {
+      this.props.onEnd();
     }
   }
   /* every frame we... */
@@ -73,6 +100,8 @@ class VictoryAnimation extends React.Component {
         cancelAnimationFrame(this.raf);
         this.queue.shift();
         this.traverseQueue();
+      } else if (this.props.onEnd) {
+        this.props.onEnd();
       }
       return;
     }
@@ -94,26 +123,3 @@ class VictoryAnimation extends React.Component {
     return this.props.children(this.state);
   }
 }
-
-VictoryAnimation.propTypes = {
-  velocity: React.PropTypes.number,
-  easing: React.PropTypes.string,
-  delay: React.PropTypes.number,
-  data: React.PropTypes.oneOfType([
-    React.PropTypes.object,
-    React.PropTypes.array
-  ])
-};
-
-VictoryAnimation.defaultProps = {
-  /* velocity modifies step each frame */
-  velocity: 0.02,
-  /* easing modifies step each frame */
-  easing: "quad-in-out",
-  /* delay between transitions */
-  delay: 0,
-  /* we got nothin' */
-  data: {}
-};
-
-export default VictoryAnimation;
