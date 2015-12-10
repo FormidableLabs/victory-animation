@@ -90,9 +90,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _d32 = _interopRequireDefault(_d3);
 	
-	var _util = __webpack_require__(4);
+	var _d3Timer = __webpack_require__(4);
+	
+	var _util = __webpack_require__(5);
 	
 	(0, _util.addVictoryInterpolator)();
+	var VELOCITY_MULTIPLIER = 16.5;
 	
 	var VictoryAnimation = (function (_React$Component) {
 	  _inherits(VictoryAnimation, _React$Component);
@@ -130,7 +133,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    /* defaults */
 	    this.state = Array.isArray(this.props.data) ? this.props.data[0] : this.props.data;
 	    this.interpolator = null;
-	    this.step = 0;
 	    this.queue = [];
 	    /* build easing function */
 	    this.ease = _d32["default"].ease(this.props.easing);
@@ -148,20 +150,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function componentWillReceiveProps(nextProps) {
 	      var _this = this;
 	
-	      /* cancel existing loop if it exists */
-	      if (this.raf) {
-	        cancelAnimationFrame(this.raf);
+	      /* cancel existing timer if it exists */
+	      if (this.timer) {
+	        this.timer.stop();
 	      }
 	      /* If an object was supplied */
+	
 	      if (Array.isArray(nextProps.data) === false) {
 	        /* compare cached version to next props */
 	        this.interpolator = _d32["default"].interpolate(this.state, nextProps.data);
-	        /* reset step to zero */
-	        this.step = 0;
-	        /* start request animation frame */
-	        setTimeout(function () {
-	          _this.raf = _this.functionToBeRunEachFrame();
-	        }, this.props.delay);
+	        this.timer = (0, _d3Timer.timer)(this.functionToBeRunEachFrame, this.props.delay);
 	        /* If an array was supplied */
 	      } else {
 	          /* Build our tween queue */
@@ -169,33 +167,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	            _this.queue.push(data);
 	          });
 	          /* Start traversing the tween queue */
-	          this.traverseQueue();
+	          this.timer = (0, _d3Timer.timer)(this.traverseQueue);
 	        }
 	    }
 	  }, {
 	    key: "componentWillUnmount",
 	    value: function componentWillUnmount() {
-	      if (this.raf) {
-	        cancelAnimationFrame(this.raf);
+	      if (this.timer) {
+	        this.timer.stop();
 	      }
 	    }
 	
-	    /* Traverse the tween queue */
+	    /* Traverse the tween queue - called withing d3-timer*/
 	  }, {
 	    key: "traverseQueue",
 	    value: function traverseQueue() {
-	      var _this2 = this;
-	
 	      if (this.queue.length > 0) {
 	        /* Get the next index */
 	        var data = this.queue[0];
 	        /* compare cached version to next props */
 	        this.interpolator = _d32["default"].interpolate(this.state, data);
-	        /* reset step to zero */
-	        this.step = 0;
-	        setTimeout(function () {
-	          _this2.raf = _this2.functionToBeRunEachFrame();
-	        }, this.props.delay);
+	        (0, _d3Timer.timer)(this.functionToBeRunEachFrame, this.props.delay);
 	      } else if (this.props.onEnd) {
 	        this.props.onEnd();
 	      }
@@ -204,36 +196,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	    /* every frame we... */
 	  }, {
 	    key: "functionToBeRunEachFrame",
-	    value: function functionToBeRunEachFrame() {
+	    value: function functionToBeRunEachFrame(elapsed) {
 	      /*
 	        step can generate imprecise values, sometimes greater than 1
-	        if this happens set the state to 1 and return, cancelling the loop
+	        if this happens set the state to 1 and return, cancelling the timer
 	      */
-	      if (this.step >= 1) {
-	        this.step = 1;
-	        this.setState(this.interpolator(this.step));
-	        if (this.queue.length > 0) {
-	          cancelAnimationFrame(this.raf);
-	          this.queue.shift();
-	          this.traverseQueue();
-	        } else if (this.props.onEnd) {
+	      var step = elapsed / (VELOCITY_MULTIPLIER / this.props.velocity);
+	
+	      if (step >= 1) {
+	        this.setState(this.interpolator(1));
+	        this.timer.stop();
+	
+	        if (this.props.onEnd) {
 	          this.props.onEnd();
 	        }
 	        return;
 	      }
 	      /*
-	        if we're not at the end of the loop, set the state by passing
+	        if we're not at the end of the timer, set the state by passing
 	        current step value that's transformed by the ease function to the
 	        interpolator, which is cached for performance whenever props are received
 	      */
-	      this.setState(this.interpolator(this.ease(this.step)));
-	      /* increase step by velocity */
-	      this.step += this.props.velocity;
-	      /*
-	        requestAnimationFrame calls a function on a frame.
-	        continue the loop by feeding functionToBeRunEachFrame
-	      */
-	      this.raf = requestAnimationFrame(this.functionToBeRunEachFrame);
+	      this.setState(this.interpolator(this.ease(step)));
 	    }
 	  }, {
 	    key: "render",
@@ -260,7 +244,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;!function() {
 	  var d3 = {
-	    version: "3.5.9"
+	    version: "3.5.10"
 	  };
 	  var d3_arraySlice = [].slice, d3_array = function(list) {
 	    return d3_arraySlice.call(list);
@@ -6627,7 +6611,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          alpha = x;
 	        } else {
 	          timer.c = null, timer.t = NaN, timer = null;
-	          event.start({
+	          event.end({
 	            type: "end",
 	            alpha: alpha = 0
 	          });
@@ -9813,6 +9797,112 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
+	(function (global, factory) {
+	   true ? factory(exports) :
+	  typeof define === 'function' && define.amd ? define('d3-timer', ['exports'], factory) :
+	  factory((global.d3_timer = {}));
+	}(this, function (exports) { 'use strict';
+	
+	  var frame = 0;
+	  var timeout = 0;
+	  var taskHead;
+	  var taskTail;
+	  var taskId = 0;
+	  var taskById = {};
+	  var setFrame = typeof window !== "undefined"
+	      && (window.requestAnimationFrame
+	        || window.msRequestAnimationFrame
+	        || window.mozRequestAnimationFrame
+	        || window.webkitRequestAnimationFrame
+	        || window.oRequestAnimationFrame)
+	        || function(callback) { return setTimeout(callback, 17); };
+	
+	  function Timer(callback, delay, time) {
+	    this.id = ++taskId;
+	    this.restart(callback, delay, time);
+	  }
+	
+	  Timer.prototype = timer.prototype = {
+	    restart: function(callback, delay, time) {
+	      if (typeof callback !== "function") throw new TypeError("callback is not a function");
+	      time = (time == null ? Date.now() : +time) + (delay == null ? 0 : +delay);
+	      var i = this.id, t = taskById[i];
+	      if (t) {
+	        t.callback = callback, t.time = time;
+	      } else {
+	        t = {next: null, callback: callback, time: time};
+	        if (taskTail) taskTail.next = t; else taskHead = t;
+	        taskById[i] = taskTail = t;
+	      }
+	      sleep();
+	    },
+	    stop: function() {
+	      var i = this.id, t = taskById[i];
+	      if (t) {
+	        t.callback = null, t.time = Infinity;
+	        delete taskById[i];
+	        sleep();
+	      }
+	    }
+	  };
+	
+	  function timer(callback, delay, time) {
+	    return new Timer(callback, delay, time);
+	  };
+	
+	  function timerFlush(time) {
+	    time = time == null ? Date.now() : +time;
+	    ++frame; // Pretend we’ve set an alarm, if we haven’t already.
+	    try {
+	      var t = taskHead, c;
+	      while (t) {
+	        if (time >= t.time) c = t.callback, c(time - t.time, time);
+	        t = t.next;
+	      }
+	    } finally {
+	      --frame;
+	    }
+	  };
+	
+	  function wake() {
+	    frame = timeout = 0;
+	    try {
+	      timerFlush();
+	    } finally {
+	      var t0, t1 = taskHead, time = Infinity;
+	      while (t1) {
+	        if (t1.callback) {
+	          if (time > t1.time) time = t1.time;
+	          t1 = (t0 = t1).next;
+	        } else {
+	          t1 = t0 ? t0.next = t1.next : taskHead = t1.next;
+	        }
+	      }
+	      taskTail = t0;
+	      sleep(time);
+	    }
+	  }
+	
+	  function sleep(time) {
+	    if (frame) return; // Soonest alarm already set, or will be.
+	    if (timeout) timeout = clearTimeout(timeout);
+	    var delay = time - Date.now();
+	    if (delay > 24) { if (time < Infinity) timeout = setTimeout(wake, delay); }
+	    else frame = 1, setFrame(wake);
+	  }
+	
+	  var version = "0.0.6";
+	
+	  exports.version = version;
+	  exports.timer = timer;
+	  exports.timerFlush = timerFlush;
+	
+	}));
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
 	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
@@ -9825,7 +9915,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _d32 = _interopRequireDefault(_d3);
 	
-	var _lodash = __webpack_require__(5);
+	var _lodash = __webpack_require__(6);
 	
 	var _lodash2 = _interopRequireDefault(_lodash);
 	
@@ -9967,7 +10057,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.addVictoryInterpolator = addVictoryInterpolator;
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/**
@@ -22322,10 +22412,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	}.call(this));
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)(module), (function() { return this; }())))
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
