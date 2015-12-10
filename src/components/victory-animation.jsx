@@ -1,5 +1,3 @@
-/*global requestAnimationFrame, cancelAnimationFrame, setTimeout*/
-
 import React from "react";
 import d3 from "d3";
 import { timer } from "d3-timer";
@@ -71,7 +69,7 @@ export default class VictoryAnimation extends React.Component {
   }
   componentWillUnmount() {
     if (this.timer) {
-      this.timer.stop()
+      this.timer.stop();
     }
   }
   /* Traverse the tween queue - called withing d3-timer*/
@@ -81,7 +79,7 @@ export default class VictoryAnimation extends React.Component {
       const data = this.queue[0];
       /* compare cached version to next props */
       this.interpolator = d3.interpolate(this.state, data);
-      timer(this.functionToBeRunEachFrame, this.props.delay)
+      timer(this.functionToBeRunEachFrame, this.props.delay);
     } else if (this.props.onEnd) {
       this.props.onEnd();
     }
@@ -96,7 +94,7 @@ export default class VictoryAnimation extends React.Component {
 
     if (step >= 1) {
       this.setState(this.interpolator(1));
-      this.timer.stop()
+      this.timer.stop();
 
       if (this.props.onEnd) {
         this.props.onEnd();
