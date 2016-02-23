@@ -4,6 +4,10 @@
 Victory Animation
 =============
 
+**IMPORTANT** This repo is being deprecated. VictoryAnimation will now be included in [VictoryCore](https://github.com/formidablelabs/victory-core). This change is purely organizational. It will still be possible to import and use VictoryAnimation independently.
+
+---
+
 `victory-animation` is a [React](https://github.com/facebook/react) wrapper component that uses the [D3](https://github.com/mbostock/d3) `interpolate` and `ease` libraries to provide transitions between prop sets.
 
 ##Examples
